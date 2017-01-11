@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+       <% include ../partials/head %> 
+    </head>
+
+    <body>
+
+        <header>
+            <% include ../partials/navigation %>
+        </header>
+
+        <main>
+            <div class="container">
+
+                <button type="button" id="restartService" class="btn btn-danger">Restart XiLoRa</button>
+                
+                 
+            </div> <!--/.container -->
+        </main>
+    </body>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script>
+
+        $(document).ready(function() {
+
+            $("#restartService").click(function() {
+                $.ajax("api/restart", {
+                    type: "GET",
+                    success: function( response ) {
+                        console.log( response );
+                        location.reload();
+                    }
+                } );
+            });
+
+        });
+
+    </script>
+</html>

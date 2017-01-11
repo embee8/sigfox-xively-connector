@@ -3,6 +3,9 @@ logs
 *.log
 npm-debug.log*
 
+# Local config file
+config.json
+
 # Runtime data
 pids
 *.pid
@@ -35,3 +38,9 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+# Visual Studio code debug information
+.vscode
+
+# Image folder used for Wiki content
+images

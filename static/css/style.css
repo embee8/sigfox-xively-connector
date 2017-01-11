@@ -1,0 +1,101 @@
+body {
+    padding-bottom: 50px;
+    font-size: 14px;
+}
+
+main {
+    padding-top: 20px;
+}
+
+.navbar {
+    border-radius: 0;
+}
+
+.app, #newApp {
+    margin: 20px 0;
+    margin-bottom: 40px;
+    padding-left: 10px;
+    padding: 20px;
+    border: 1px solid #d9534f;
+    border-radius: 5px;
+}
+
+.app h1 {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dddddd;
+}
+
+#newApp {
+    margin-top: 50px;
+}
+
+.devices {
+    margin-left: 30px;
+    margin-top: 30px;
+
+}
+
+/*.device, .newDevice {
+    margin-top: 20px;
+    border-left: 3px solid #22cc66;
+    padding-left: 10px;
+}*/
+
+.devices table {
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.devices table tbody td {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.mappings {
+    margin-left: 30px;
+    margin-top: 40px;
+}
+
+/*.mapping, .newMapping {
+    margin-top: 20px;
+    padding-left: 10px;
+    border-left: 3px solid #2288ff;
+}*/
+
+.mappings table {
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.mappings table tbody td {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+h1, h2, h3 {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+input, select {
+    max-width: 500px;
+}
+
+hr {
+    margin-top: 10px;
+}
+
+p {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

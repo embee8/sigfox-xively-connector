@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+       <% include ../partials/head %> 
+    </head>
+
+    <body>
+
+        <header>
+            <% include ../partials/navigation %>
+        </header>
+
+        <main>
+            <div class="container">
+
+                <form id="formSettings">
+
+                <div class="row">
+
+                <div class="col-xs-12 col-sm-6">
+                
+                    <h1>Xively</h1>
+                    <hr>
+
+                    <div class="form-group">
+                        <label for="xi_broker_url">Broker URL</label>
+                        <select class="form-control" id="xi_broker_url">
+                            <option value="broker.xively.eu" selected>broker.xively.eu (EU)</option>
+                            <option value="broker.xively.com">broker.xively.com (US)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xi_api_endpoint_id">Identity API endpoint</label>
+                        <input type="text" class="form-control" id="xi_api_endpoint_id" placeholder="" disabled>
+                        <small id="brokerUrlHelp" class="form-text text-muted">Auto-filled. Used to authenticate the user provided below (see: <a href="https://developer.xively.com/reference">Xively platform APIs</a>)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xi_api_endpoint_bp">Blueprint API endpoint</label>
+                        <input type="text" class="form-control" id="xi_api_endpoint_bp" placeholder="" disabled>
+                        <small id="brokerUrlHelp" class="form-text text-muted">Auto-filled. Used to access and update Xively device data (see: <a href="https://developer.xively.com/reference">Xively platform APIs</a>)</small>
+                    </div>
+
+                    <!--<div class="form-group">
+                        <label for="xi_broker_url">Xively broker URL</label>
+                        <input type="text" class="form-control" id="xi_broker_url" placeholder="">
+                        <small id="brokerUrlHelp" class="form-text text-muted">broker.xively.com (US) or broker.xively.eu (EU)</small>
+                    </div>-->
+
+                    <div class="form-group">
+                        <label for="xi_broker_port">Broker port</label>
+                        <input type="text" class="form-control" id="xi_broker_port" placeholder="">
+                        <small id="brokerUrlHelp" class="form-text text-muted">8883 or 443 (see: <a href="https://blog.xively.com/announcing-http-support/">Xively blog</a>)</small>
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group">
+                        <label for="xi_account_id">Account ID</label>
+                        <input type="text" class="form-control" id="xi_account_id" placeholder="">
+                        <small id="accountIdHelp" class="form-text text-muted">What Xively account do you want to connect to The Things Network?</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xi_id_username">Username / email</label>
+                        <input type="text" class="form-control" id="xi_id_username" placeholder="">
+                        <small id="IdUsernameHelp" class="form-text text-muted">This user account will be used to connect to Xively.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xi_id_password">Password</label>
+                        <input type="password" class="form-control" id="xi_id_password" placeholder="">
+                        <small id="IdPasswordHelp" class="form-text text-muted">The password for specified user account</small>
+                    </div>
+
+                    <!--<div class="form-group">
+                        <label for="xi_device_id">Xively Proxy Device ID</label>
+                        <input type="text" class="form-control" id="xi_device_id" placeholder="">
+                        <small id="deviceIdHelp" class="form-text text-muted">This device will be used to connect to the broker and should have the permissions to access all other devices that want to be configured.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xi_device_pw">Xively Proxy Device Password</label>
+                        <input type="text" class="form-control" id="xi_device_pw" placeholder="">
+                        <small id="devicePwHelp" class="form-text text-muted">The password for the device above</small>
+                    </div>-->
+                
+                </div>
+
+
+                <div class="col-xs-12 col-sm-6">
+                
+                    <h1>The Things Network</h1>
+                        <hr>
+
+                        <div class="form-group">
+                            <label for="ttn_broker_url">Broker URL</label>
+                            <input type="text" class="form-control" id="ttn_broker_url" placeholder="">
+                            <!--<small id="accountIdHelp" class="form-text text-muted">The URL of the TTN broker</small>-->
+                        </div>
+
+                        <div class="form-group" style="display:none;">
+                            <label for="ttn_broker_port">Broker port</label>
+                            <input type="text" class="form-control" id="ttn_broker_port" placeholder="">
+                            <!--<small id="ttnBrokerPortHelp" class="form-text text-muted">The port of the TTN broker</small>-->
+                        </div>
+                    
+                    </div>
+
+                </div> <!-- END ROW -->
+
+                <hr>
+
+                <input type="hidden" id="setting_id" value="">
+            
+                <button type="submit" class="btn btn-primary">Save settings</button>
+
+                <!--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button type="button" id="restartService" class="btn btn-danger">Restart XiLoRa</button>-->
+                
+
+                </form>
+
+                 
+            </div> <!--/.container -->
+        </main>
+    </body>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script>
+
+        $(document).ready(function() {
+            //alert("here");
+
+            $("select[id=xi_broker_url]").change(function(e){
+                var select = $(this);
+
+                if (select.val() == "broker.xively.eu") {
+                    $("#xi_api_endpoint_id").val("id.xively.eu");
+                    $("#xi_api_endpoint_bp").val("blueprint.xively.eu");
+                }
+                else if (select.val() == "broker.xively.com") {
+                    $("#xi_api_endpoint_id").val("id.xively.com");
+                    $("#xi_api_endpoint_bp").val("blueprint.xively.com");
+                }
+                
+            });
+
+            $.ajax("/api/settings", {
+                method: "GET",
+                contentType: "application/json",
+                success: function(settings) {
+                    
+                    console.log(settings);
+                    
+                    if (settings != null) {
+                        $("#xi_broker_url").val(settings.xi_broker_url);
+                        $("#xi_broker_port").val(settings.xi_broker_port);
+
+                        $("#xi_api_endpoint_id").val(settings.xi_api_endpoint_id);
+                        $("#xi_api_endpoint_bp").val(settings.xi_api_endpoint_bp);
+
+                        $("#xi_account_id").val(settings.xi_account_id);
+                        $("#xi_id_username").val(settings.xi_id_username);
+                        $("#xi_id_password").val(settings.xi_id_password);
+
+                        $("#ttn_broker_url").val(settings.ttn_broker_url);
+                        $("#ttn_broker_port").val(settings.ttn_broker_port);
+
+                        $("#setting_id").val(settings.setting_id);
+                    }
+                },
+                error: function() {
+                    // No settings available yet
+                    //alert("Settings could not be retrieved.");
+                }
+            });
+
+            $("#formSettings").submit(function(e) {
+                e.preventDefault();
+                
+                var settings =  {
+                    xi_broker_url: $("#xi_broker_url").val(),
+                    xi_broker_port: Number($("#xi_broker_port").val()),
+
+                    xi_api_endpoint_id: $("#xi_api_endpoint_id").val(),
+                    xi_api_endpoint_bp: $("#xi_api_endpoint_bp").val(),
+                    
+                    xi_account_id: $("#xi_account_id").val(),
+                    xi_id_username: $("#xi_id_username").val(),
+                    xi_id_password: $("#xi_id_password").val(),
+
+                    ttn_broker_url: $("#ttn_broker_url").val(),
+                    ttn_broker_port: Number($("#ttn_broker_port").val()),
+
+                    setting_id: Number($("#setting_id").val())
+                };
+
+                $.ajax("/api/settings", {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(settings),
+                    success: function() {
+                        // All done, reload page
+                        location.reload();
+                    },
+                    error: function() {
+                        alert("Settings could not be saved");
+                    }
+                });
+            });
+
+            $("#restartService").click(function() {
+                $.ajax("api/restart", {
+                    type: "GET",
+                    success: function( response ) {
+                        console.log( response );
+                        location.reload();
+                    }
+                } );
+            });
+
+        });
+
+    </script>
+</html>

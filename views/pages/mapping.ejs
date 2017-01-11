@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+       <% include ../partials/head %> 
+    </head>
+
+    <body>
+
+        <header>
+            <% include ../partials/navigation %>
+        </header>
+
+        <main>
+            <div class="container">
+
+                <h1>Sigfox device types / Xively device templates</h1>
+                <div id="apps">
+
+                </div>
+                
+                <!--<br>
+                <button id="restartService" class="btn btn-danger">Restart service</button>-->
+
+            </div> <!--/.container -->
+        </main>
+    </body>
+
+
+    <script>
+        $(document).ready(function() {
+
+            // Load app, device, and mapping structure
+            loadApps();
+
+            function loadApps() {
+                $.ajax("api/devicetypes", {
+                    success: function(data) {
+
+                        if (data.length == 0) {
+                            $("#apps").append(
+                                '<div class="app"><small><i>No device types defined</i></small></div>'
+                            );
+                        }
+                        else {
+                            displayDeviceTypes(data);
+                        }
+
+                        // Add "New device type" button
+                        $("#apps").append(
+                            '<button type="button" id="btnNewApp" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New device type</button>'
+                        );
+                    }
+                });
+            };
+
+            function displayDeviceTypes(data) {
+
+                console.log("Received all device types");
+
+                for ( var i = 0; i < data.length; i++) {
+
+                    var device_type = data[i];
+                    
+                    // Insert node for app, and search all devices for this app
+                    $("#apps").append(
+                        '<div class="app" data-devicetypeid="' + device_type.device_type_id + '" data-name="' + device_type.name + '">' +
+                            '<h1>' + device_type.name +
+                            '&nbsp;&nbsp;&nbsp;<button type="button" id="btnEditApp" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
+                            '&nbsp;&nbsp;&nbsp;<button type="button" id="btnDeleteApp" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></small>'+
+                            '</h1>' +
+                            
+                            '<div class="devices">' +
+                                '<h2>Devices</h2>' +
+                                //'<div class="device">' +
+                                //  '<h2>Devices</h2>' +
+                                //'</div>' +
+                                
+                                '<table class="table table-bordered table-striped">' +
+                                    '<thead>' +
+                                        '<tr>' +
+                                        '<th>Description</td>' +
+                                        '<th>Sigfox Device ID</td>' +
+                                        '<th>Xively Device ID</td>' +
+                                        '<th>Actions</td>' +
+                                        '</tr>' +
+                                    '</thead>' +
+                                    '<tbody>' +
+                                    '</tbody>' +
+                                '</table>' +
+
+                            '</div>' +
+
+                            // Container for mappings
+                            '<div class="mappings">' +
+                                '<h2>Data <small>Extract a JSON field from a Sigfox message and publish it to a Xively topic</small></h2>' +
+
+                                '<table class="table table-bordered table-striped">' +
+                                    '<thead>' +
+                                        '<tr>' +
+                                        '<th>Sigfox message JSON field</td>' +
+                                        '<th>Target Xively topic</td>' +
+                                        '<th>Time series</td>' +
+                                        '<th>Actions</td>' +
+                                        '</tr>' +
+                                    '</thead>' +
+                                    '<tbody>' +
+                                    '</tbody>' +
+                                '</table>' +
+                            '</div>' +
+
+                        '</div>'
+                    );
+
+                    console.log("Get devices for device type '" + device_type.name + ")");
+
+                    // Fetch all devices for this app
+                    $.ajax("api/devices", {
+
+                        data: { "device_type_id" : device_type.device_type_id },
+                        success: function(data) {
+
+                            //var app_uid = this.url.split("app=")[1];
+
+                            var device_type_id = this.url.split("device_type_id=")[1];
+
+                            if (data.length == 0) {   
+                                $(".app[data-devicetypeid=" + device_type_id + "] .devices table tbody").append(
+                                    '<tr class="device">' +    
+                                        '<td><small><i>No devices defined</i></small></td>' +
+                                        '<td></td>' +
+                                        '<td></td>' +
+                                        '<td></td>' +
+                                    '</tr>'
+                                );
+                            }
+                            else {
+                                displayDevices(data);
+                            }
+
+                            // Insert a "New device" button
+                            //console.log("Inserting button for " + app_eui);
+                            $(".app[data-devicetypeid=" + device_type_id + "] .devices").append(
+                                '<button type="button" id="btnNewDevice" class="btn btn-default btn-sm" data-devicetypeid="' + device_type_id + '">' +
+                                '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New device</button>'
+                            );
+                        }
+                    });
+
+
+
+
+                    // Fetch all mappings for this app
+                    $.ajax("api/mappings", {
+                        data: { "device_type_id" : device_type.device_type_id },
+                        success: function(data) {
+
+                            var device_type_id = this.url.split("device_type_id=")[1];
+
+                            if (data.length == 0) {
+                                $(".app[data-devicetypeid=" + device_type_id + "] .mappings table tbody").append(
+                                    '<tr class="mapping">' +    
+                                        '<td><small><i>No data mappings defined</i></small></td>' +
+                                        '<td></td>' +
+                                        '<td></td>' +
+                                        '<td></td>' +
+                                    '</tr>'
+                                );
+                            }
+                            else {
+                                displayMappings(data);
+                            }
+
+                            // Insert a "New mapping" button
+                            $(".app[data-devicetypeid=" + device_type_id + "] .mappings").append(
+                                '<button type="button" id="btnNewMapping" class="btn btn-default btn-sm" data-devicetypeid="' + device_type_id + '">' +
+                                    '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New mapping</button>'
+                            );
+                        }
+                    });
+                              
+                }
+
+            }
+
+            function displayDevices(data) {
+
+                console.log("Received device list");
+                //console.log(data);
+
+                for ( var i = 0; i < data.length; i++) {
+                    
+                    var device = data[i];
+
+                    console.log("Appending device '" + device.device_name + "'");
+                    //console.log(device);
+
+                    var name = ( device.device_name != null && device.device_name != "" ) ? device.device_name : "Unnamed device";
+
+                    // Insert device node
+                    /*
+                    
+                    Old div-based view - replaced to increase space efficiency...
+
+                    $(".app[data-appeui=" + device.app_eui + "] .devices").append(
+                        '<div class="device" data-deviceid="' + device.device_id + '" data-deviceeui="' + device.device_eui + '" data-name="' + device.device_name + '" data-xivelydeviceid="' + device.xi_device_id + '">' +
+                            '<b>' + name + '</b><small>' +
+                            '<br>TTN Device EUI: ' + device.device_eui +
+                            '<br>Xively Device ID: ' + device.xi_device_id +
+                            '<br><button type="button" id="btnEditDevice" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
+                            '&nbsp;&nbsp;&nbsp;<button type="button" id="btnDeleteDevice" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></small>'+
+                            
+                        '</div>'
+                    );*/
+
+                    $(".app[data-devicetypeid=" + device.device_type_id + "] .devices table tbody").append(
+                        '<tr class="device" data-deviceid="' + device.device_id + '" data-sigfoxdeviceid="' + device.sigfox_device_id + '" data-name="' + device.device_name + '" data-xivelydeviceid="' + device.xi_device_id + '">' +
+                            
+                            '<td>' + name + '</td>' +
+
+                            '<td>' + device.sigfox_device_id + '</td>' +
+
+                            '<td>' + device.xi_device_id + '</td>' +
+
+                            '<td>' +
+                            
+                            '<button type="button" id="btnEditDevice" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
+
+                            '&nbsp;&nbsp;&nbsp;' +
+                            
+                            '<button type="button" id="btnDeleteDevice" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
+                            
+                            '</td>' +
+                        '</tr>'
+                    );
+                    
+                    // Now that we have displayed the devices, let's load the application mappings
+                    //console.log("Get mappings for app '" + app.app_eui);
+                    
+                    /*$.ajax("api/mappings", {
+                        data: { "appeui" : device.device_eui },
+                        success: function(data) {
+
+                            var device_uid = this.url.split("device=")[1];
+
+                            if (data.length == 0) {
+                                $(".device[data-device=" + device_uid + "] .mappings").append(
+                                    '<div class="mapping"><i>No mappings defined</i></div>'
+                                );
+                            }
+                            else {
+                                //displayMappings(data);
+                            }
+
+                            // Insert a "New device" button
+                            $(".device[data-device=" + device_uid + "] .mappings").append(
+                                '<br><button type="button" id="btnNewMapping" class="btn btn-default btn-sm" data-device="' + device_uid + '">' +
+                                    '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span> New mapping</button>'
+                            );
+                        }
+                    });*/
+                }
+                
+                // all done, display buttons
+                //addNewDeviceButtons();
+            }
+
+            function displayMappings(data) {
+                for ( var i = 0; i < data.length; i++) {
+                    var mapping = data[i];
+
+                    var timeSeriesText = "No";
+                    
+                    if (mapping.time_series == true) {
+                        timeSeriesText = 'Yes <span class="glyphicon glyphicon-signal" aria-hidden="true"></span>';
+                    }
+
+                    /*
+                    
+                    Old div-based view. Replaced to increase space efficiency...
+                    
+                    $(".app[data-appeui=" + mapping.app_eui + "] .mappings").append(
+                        '<div class="mapping" data-mapping="' + mapping.mapping_id + '" data-xivelytopic="' + mapping.xi_topic + '" data-jsonfield="' + mapping.json_field + '" data-timeseries="' + mapping.time_series + '" data-category="' + mapping.category + '"><small>' +
+                        'TTN JSON field: <b>' + mapping.json_field + '</b>' +
+                        '<br>Target Xively topic: <b>' + mapping.xi_topic + "</b> " +
+                        '<br>Time series: ' + timeSeriesText + 
+                        '<br><button type="button" id="btnEditMapping" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
+                        '&nbsp;&nbsp;&nbsp;<button type="button" id="btnDeleteMapping" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></small>'+
+                        '</div>'
+                    );*/
+
+                    $(".app[data-devicetypeid=" + mapping.device_type_id + "] .mappings table tbody").append(
+
+                        '<tr class="mapping" data-mapping="' + mapping.mapping_id + '" data-xivelytopic="' + mapping.xi_topic + '" data-jsonfield="' + mapping.json_field + '" data-timeseries="' + mapping.time_series + '" data-category="' + mapping.category + '">' +
+                            
+                            '<td>' + mapping.json_field + '</td>' +
+
+                            '<td>' + mapping.xi_topic + '</td>' +
+
+                            '<td>' + timeSeriesText + '</td>' +
+
+                            '<td>' +
+                                
+                                '<button type="button" id="btnEditMapping" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></button>' +
+
+                                '&nbsp;&nbsp;&nbsp;' +
+                                
+                                '<button type="button" id="btnDeleteMapping" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
+                            
+                            '</td>' +
+                        '</tr>'
+                    );
+
+                }
+            }
+
+
+            
+
+        
+    
+
+
+            $("#restartService").click(function() {
+                $.ajax("api/restart", {
+                    type: "GET",
+                    success: function( response ) {
+                        console.log( response );
+                        location.reload();
+                    }
+                } );
+            });
+
+
+            
+
+
+
+            /*
+                NEW BUTTONS
+            */
+
+            // Event handler for the "New device type" button
+            $(document).on('click', '#btnNewApp', function (e) {
+
+                $("#modalNewApp").modal("show");
+            });
+
+
+            // New app form handler
+            $("#formNewApp").submit(function(e) {
+                e.preventDefault();
+
+                var name = $("#formNewApp input[name=appname]").val();
+                /*var app_eui = $("#formNewApp input[name=appeui]").val();
+                var app_access_key = $("#formNewApp input[name=accesskey]").val();*/
+
+                if (name == "") {
+                    alert("Device type name cannot be empty!");
+                    return;
+                }
+
+                // Save device type
+                var device_type = {
+                    name: name
+                }
+
+                $.ajax("/api/devicetypes", {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(device_type),
+                    success: function() {
+                        // Close modal and reload page
+                        //$("#modalNewApp").modal("hide");
+                        location.reload();
+                    },
+                    error: function() {
+                        alert("Device type couldn't be created.");
+                    }
+                });
+            });
+
+
+
+
+            // Event handler for the "New device" button
+            $(document).on('click', '#btnNewDevice', function (e) {
+                
+                var device_type_id = $(e.target).data("devicetypeid");
+
+                // Fill app ID into the "New device" form
+                $("#formNewDevice input[name=devicetypeid]").val(device_type_id);
+
+                $("#modalNewDevice").modal("show");
+            });
+
+            // New device form handler
+            $("#formNewDevice").submit(function(e) {
+                e.preventDefault();
+
+                var sigfox_device_id = $("#formNewDevice input[name=sigfoxdeviceid]").val();
+                var xi_device_id = $("#formNewDevice input[name=xivelydeviceid]").val();
+                var device_type_id = $("#formNewDevice input[name=devicetypeid]").val();
+                var device_name = $("#formNewDevice input[name=devicename]").val();
+
+                if (device_name == "") {
+                    alert("Device name cannot be empty!");
+                    return;
+                }
+
+                // Save device
+                var device = {
+                    sigfox_device_id: sigfox_device_id,
+                    xi_device_id: xi_device_id,
+                    device_type_id: device_type_id,
+                    device_name: device_name
+                }
+
+                console.log(device);
+
+                $.ajax("/api/devices", {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(device),
+                    success: function() {
+                        // Close modal and reload page
+                        //$("#modalNewApp").modal("hide");
+                        location.reload();
+                    },
+                    error: function() {
+                        alert("Device couldn't be created. Note that a device ID can only be used once.");
+                    }
+                });
+            });
+
+
+
+
+            // Event handler for the "New mapping" button
+            $(document).on('click', '#btnNewMapping', function (e) {
+                
+                var device_type_id = $(e.target).data("devicetypeid");
+
+                // Fill device type ID into the "New mapping" form
+                $("#formNewMapping input[name=devicetypeid]").val(device_type_id);
+
+                $("#modalNewMapping").modal("show");
+            });
+
+            // New mapping form handler
+            $("#formNewMapping").submit(function(e) {
+                e.preventDefault();
+
+                var device_type_id = $("#formNewMapping input[name=devicetypeid]").val();
+                var json_field = $("#formNewMapping input[name=json_field]").val();
+                var xi_topic = $("#formNewMapping input[name=xi_topic]").val();
+                var time_series = $("#formNewMapping input[name=time_series]").is(":checked");
+                var category = $("#formNewMapping input[name=category]").val();
+
+                if (json_field == "" || xi_topic == "") {
+                    alert("JSON field and Xively topic cannot be empty!");
+                    return;
+                }
+
+                // Save mapping
+                var mapping = {
+                    device_type_id: device_type_id,
+                    json_field: json_field,
+                    xi_topic: xi_topic,
+                    time_series: time_series,
+                    category: category
+                }
+
+                $.ajax("/api/mappings", {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(mapping),
+                    success: function() {
+                        // Close modal and reload page
+                        location.reload();
+                    },
+                    error: function() {
+                        alert("Mapping couldn't be created.");
+                    }
+                });
+            });
+
+
+
+
+
+
+
+
+
+
+            /*
+                EDIT BUTTONS
+            */
+
+            // EDIT DEVICE type
+
+            $(document).on("click", "#btnEditApp", function(e) {
+
+                var name = $(e.target).parents(".app").data("name");
+                var device_type_id = $(e.target).parents(".app").data("devicetypeid");
+                /*console.log("Updating app with ID " + app_id);
+                var app_eui = $(e.target).parents(".app").data("appeui");
+                var app_access_key = $(e.target).parents(".app").data("appaccesskey");
+                */
+
+                // Fill data
+                $("#formEditApp input[name=appname]").val(name);
+                $("#formEditApp input[name=devicetypeid]").val(device_type_id);
+                /*$("#formEditApp input[name=appeui]").val(app_eui);
+                $("#formEditApp input[name=accesskey]").val(app_access_key);*/
+
+                $("#modalEditApp").modal("show");
+            });
+
+            // Edit app form handler
+            $("#formEditApp").submit(function(e) {
+                e.preventDefault();
+
+                var name = $("#formEditApp input[name=appname]").val();
+                var device_type_id = $("#formEditApp input[name=devicetypeid]").val();
+                /*var app_eui = $("#formEditApp input[name=appeui]").val();
+                var app_access_key = $("#formEditApp input[name=accesskey]").val();*/
+
+                if (name == "") {
+                    alert("Device type name cannot be empty!");
+                    return;
+                }
+
+                // Update device type
+                var device_type = {
+                    name: name,
+                    device_type_id: device_type_id
+                }
+
+                $.ajax("/api/devicetypes/update", {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(device_type),
+                    success: function() {
+                        // Close modal and reload page
+                        //$("#modalNewApp").modal("hide");
+                        location.reload();
+                    },
+                    error: function() {
+                        alert("Changes couldn't be saved.");
+                    }
+                });
+            });
+
+
+
+
+            // EDIT DEVICE
+
+            $(document).on("click", "#btnEditDevice", function(e) {
+
+                var name = $(e.target).parents(".device").data("name");
+                var deviceid = $(e.target).parents(".device").data("deviceid");
+                var sigfox_device_id = $(e.target).parents(".device").data("sigfoxdeviceid");
+                var xi_device_id = $(e.target).parents(".device").data("xivelydeviceid")
+                
+                // Fill data
+                $("#formEditDevice input[name=devicename]").val(name);
+                $("#formEditDevice input[name=sigfoxdeviceid]").val(sigfox_device_id);
+                $("#formEditDevice input[name=xivelydeviceid]").val(xi_device_id);
+                $("#formEditDevice input[name=deviceid]").val(deviceid);
+                
+
+                $("#modalEditDevice").modal("show");
+            });
+
+            // Edit device form handler
+            $("#formEditDevice").submit(function(e) {
+                e.preventDefault();
+
+                var deviceid = $("#formEditDevice input[name=deviceid]").val();
+                var sigfox_device_id = $("#formEditDevice input[name=sigfoxdeviceid]").val();
+                var xi_device_id = $("#formEditDevice input[name=xivelydeviceid]").val();
+                var devicename = $("#formEditDevice input[name=devicename]").val();
+
+                if (devicename == "") {
+                    alert("Device name cannot be empty!");
+                    return;
+                }
+
+                // Update device
+                var device = {
+                    device_id: deviceid,
+                    sigfox_device_id: sigfox_device_id,
+                    xi_device_id: xi_device_id,
+                    device_name: devicename
+                }
+
+                console.log(device);
+
+                $.ajax("/api/devices/update", {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(device),
+                    success: function() {
+                        // Reload the page
+                        location.reload();
+                    },
+                    error: function() {
+                        alert("Changes couldn't be saved.");
+                    }
+                });
+            });
+
+
+            // EDIT MAPPING
+
+            $(document).on("click", "#btnEditMapping", function(e) {
+                var mapping = $(e.target).parents(".mapping").data("mapping");
+                var json_field = $(e.target).parents(".mapping").data("jsonfield");
+                var xi_topic = $(e.target).parents(".mapping").data("xivelytopic");
+                var category = $(e.target).parents(".mapping").data("category");
+                var time_series = $(e.target).parents(".mapping").data("timeseries");
+
+                // Fill device ID into the "New mapping" form
+                $("#formEditMapping input[name=mapping_id]").val(mapping);
+                $("#formEditMapping input[name=json_field]").val(json_field);
+                $("#formEditMapping input[name=xi_topic]").val(xi_topic);
+                $("#formEditMapping input[name=category]").val(category);
+
+                if (time_series) {
+                    $("#formEditMapping input[name=time_series]").prop("checked", true);
+                }
+                else {
+                    $("#formEditMapping input[name=time_series]").prop("checked", false);
+                }
+
+                $("#modalEditMapping").modal("show");
+            });
+
+            // Edit mapping form handler
+            $("#formEditMapping").submit(function(e) {
+                e.preventDefault();
+
+                var mapping_id = $("#formEditMapping input[name=mapping_id]").val();
+                var json_field = $("#formEditMapping input[name=json_field]").val();
+                var xi_topic = $("#formEditMapping input[name=xi_topic]").val();
+                var time_series = $("#formEditMapping input[name=time_series]").is(":checked");
+                var category = $("#formEditMapping input[name=category]").val();
+
+                if (json_field == "" || xi_topic == "") {
+                    alert("JSON field and Xively topic cannot be empty!");
+                    return;
+                }
+
+                // Save updates
+                var mapping = {
+                    mapping_id: mapping_id,
+                    json_field: json_field,
+                    xi_topic: xi_topic,
+                    time_series: time_series,
+                    category: category
+                }
+
+                $.ajax("/api/mappings/update", {
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(mapping),
+                    success: function() {
+                        // Reload page
+                        location.reload();
+                    },
+                    error: function() {
+                        alert("Changes couldn't be saved.");
+                    }
+                });
+            });
+
+
+
+
+
+            /*
+                DELETE BUTTONS
+            */
+
+            $(document).on("click", "#btnDeleteApp", function(e) {
+                var r = confirm("Do you want to delete this app?");
+
+                if (r == true) {
+                    var appid = $(e.target).parents(".app").data("appid");
+
+                    var reqData = {
+                        appid: appid
+                    }
+
+                    $.ajax("/api/apps", {
+                        method: "DELETE",
+                        contentType: "application/json",
+                        data: JSON.stringify(reqData),
+                        success: function() {
+                            location.reload();
+                        },
+                        error: function() {
+                            alert("App could not be deleted");
+                        }
+                    });
+                }
+            });
+
+            $(document).on("click", "#btnDeleteDevice", function(e) {
+                var r = confirm("Do you want to delete this device?");
+
+                if (r == true) {
+                    var deviceid = $(e.target).parents(".device").data("deviceid");
+
+                    var reqData = {
+                        device_id: deviceid
+                    }
+
+                    $.ajax("/api/devices", {
+                        method: "DELETE",
+                        contentType: "application/json",
+                        data: JSON.stringify(reqData),
+                        success: function() {
+                            location.reload();
+                        },
+                        error: function() {
+                            alert("Device could not be deleted");
+                        }
+                    });
+                }
+            });
+
+            $(document).on("click", "#btnDeleteMapping", function(e) {
+                var r = confirm("Do you want to delete this mapping?");
+
+                if (r == true) {
+                    var mapping = $(e.target).parents(".mapping").data("mapping");
+                    
+                    var reqData = {
+                        mapping_id: mapping
+                    }
+
+                    $.ajax("/api/mappings", {
+                        method: "DELETE",
+                        contentType: "application/json",
+                        data: JSON.stringify(reqData),
+                        success: function() {
+                            location.reload();
+                        },
+                        error: function() {
+                            alert("Mapping could not be deleted");
+                        }
+                    });
+                }
+                
+            });
+            
+        });
+    </script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+
+    <!-- New device type modal -->
+    <div class="modal fade" id="modalNewApp" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <form id="formNewApp">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">New device type / device template</h4>
+                </div>
+                
+                <div class="modal-body">
+                    
+                        <div class="form-group">
+                            <label for="appname">Display name</label>
+                            <input type="text" class="form-control" name="appname" id="appname" placeholder="Pick an arbitrary name that describes your device type">
+                        </div>
+
+                        <!--<div class="form-group">
+                            <label for="appeui">TTN app ID</label>
+                        <input type="text" class="form-control" name="appeui" id="appeui" placeholder="Your unique TTN app identifier">
+                        </div>
+                        
+
+                        <div class="form-group">
+                            <label for="accesskey">TTN app access key</label>
+                            <input type="text" class="form-control" name="accesskey" id="accesskey" placeholder="Your TTN app access key">
+                        </div>
+
+                        <p>The EUI and access key are accessible in your TTN account.<br>Navigate to Applications > <i>Example App</i> > Getting your data</p>
+                        -->
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save device type</button>
+                </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Edit device type modal -->
+    <div class="modal fade" id="modalEditApp" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <form id="formEditApp">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Edit device type / device template</h4>
+                </div>
+                
+                <div class="modal-body">
+                    
+                        <div class="form-group">
+                            <label for="appname">Display name</label>
+                            <input type="text" class="form-control" name="appname" val="" placeholder="Pick an arbitrary name that describes your device type">
+                        </div>
+                        <!--
+                        <div class="form-group">
+                            <label for="appeui">TTN app ID</label>
+                        <input type="text" class="form-control" name="appeui" val="" placeholder="Your unique TTN app identifier">
+                        </div>
+                        
+
+                        <div class="form-group">
+                            <label for="accesskey">TTN app access key</label>
+                            <input type="text" class="form-control" name="accesskey" val="" placeholder="Your TTN app access key">
+                        </div>
+                        -->
+                        
+                        <input type="hidden" name="devicetypeid" value="" />
+                        
+                        <!--                 
+                        <p>The EUI and access key are accessible in your TTN account.<br>Navigate to Applications > <i>Example App</i> > Getting your data</p>
+                        -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- New device modal -->
+    <div class="modal fade" id="modalNewDevice" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <form id="formNewDevice">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">New device</h4>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="form-group">
+                        <label for="devicename">Description</label>
+                        <input type="text" class="form-control" name="devicename" placeholder="E.g. living room sensor (optional)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sigfoxdeviceid">Sigfox Device ID</label>
+                        <input type="text" class="form-control" name="sigfoxdeviceid" placeholder="Unique Sigfox device identifier">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xivelydeviceid">Xively Device ID</label>
+                        <input type="text" class="form-control" name="xivelydeviceid" placeholder="Unique Xively device identifier">
+                    </div>
+
+                    <input type="hidden" name="devicetypeid" value="" />
+   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save device</button>
+                </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Edit device modal -->
+    <div class="modal fade" id="modalEditDevice" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <form id="formEditDevice">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Edit device</h4>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="form-group">
+                        <label for="devicename">Description</label>
+                        <input type="text" class="form-control" name="devicename" placeholder="E.g. living room sensor (optional)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sigfoxdeviceid">Sigfox Device ID</label>
+                        <input type="text" class="form-control" name="sigfoxdeviceid" placeholder="Unique Sigfox device identifier">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xivelydeviceid">Xively Device ID</label>
+                        <input type="text" class="form-control" name="xivelydeviceid" placeholder="Unique Xively device identifier">
+                    </div>            
+
+                    <input type="hidden" name="deviceid" value="" />
+   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+    <!-- New mapping modal -->
+    <div class="modal fade" id="modalNewMapping" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <form id="formNewMapping">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">New mapping</h4>
+                </div>
+                <div class="modal-body">    
+            
+                    <div class="form-group">
+                        <label for="json_field">JSON field name (source)</label>
+                        <input type="text" class="form-control" name="json_field" placeholder="For example, enter 'temperature' to access { 'temperature' = 20 }' ">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xi_topic">Xively topic (target)</label>
+                        <input type="text" class="form-control" name="xi_topic" placeholder="For example, enter 'temperature' to send data to 'xi/blue/v1/{account_id}/d/{device_id}/temperature">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category (only used for time series values)</label>
+                        <input type="text" class="form-control" name="category" placeholder="Optional field for time series values (for analysis purposes)">
+                    </div>
+
+                    <div class="checkbox">
+                        <label>
+                        <input type="checkbox" name="time_series"> Time series
+                        </label>
+                    </div>
+
+                    <input type="hidden" name="devicetypeid" value="">
+                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save data mapping</button>
+                </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Edit mapping modal -->
+    <div class="modal fade" id="modalEditMapping" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <form id="formEditMapping">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Edit mapping</h4>
+                </div>
+                <div class="modal-body">    
+            
+                    <div class="form-group">
+                        <label for="json_field">JSON field name (source)</label>
+                        <input type="text" class="form-control" name="json_field" placeholder="For example, nter 'temperature' to access { fields.temperature }' ">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="xi_topic">Xively Topic (target)</label>
+                        <input type="text" class="form-control" name="xi_topic" placeholder="For example, enter 'temperature' to send data to 'xi/blue/v1/{account_id}/d/{device_id}/temperature">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category (only used for time series values)</label>
+                        <input type="text" class="form-control" name="category" placeholder="Optional field for time series values (for analysis purposes)">
+                    </div>
+
+                    <div class="checkbox">
+                        <label>
+                        <input type="checkbox" name="time_series"> Time series
+                        </label>
+                    </div>
+
+                    <input type="hidden" name="mapping_id" value="">
+                   
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+
+
+
+
+</html>
+
