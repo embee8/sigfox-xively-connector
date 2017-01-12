@@ -1,0 +1,38 @@
+{
+    "name": "XiFox",
+    "description": "Connecting Xively and Sigfox",
+    "repository": "https://github.com/embee8/sigfox-xively-connector",
+    "keywords": [
+        "node",
+        "sigfox",
+        "iot",
+        "xively"
+    ],
+    "env": {
+        "CONNECTOR_USERNAME": {
+            "description": "Your XiFox username",
+            "required": true
+        },
+        "CONNECTOR_PASSWORD": {
+            "description": "Your XiFox password",
+            "required": true
+        }
+    },
+    "addons": [
+        {
+            "plan": "heroku-postgresql:hobby-dev",
+            "as": "APP_DATABASE",
+            "options": {
+                "version": "9.5"
+            }
+        }
+    ],
+    "buildpacks": [
+        {
+            "url": "heroku/nodejs"
+        }
+    ],
+    "scripts": {
+        "postdeploy": "npm run initdb"
+    }
+}
