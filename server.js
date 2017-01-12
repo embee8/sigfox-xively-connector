@@ -924,7 +924,7 @@ function handleUplinkMessage(msg) {
 
                                 // Send payload to Xively
                                 XIVELY_CLIENT.publish(topicPath, payload.toString());
-                                log("Sent payload " + payload.toString() + " to topic '" + topicPath + "'");
+                                log("Sent payload '" + payload.toString() + "' to topic '" + topicPath + "'");
                             
                             }
                             else {
