@@ -90,6 +90,7 @@
                 </div>
 
 
+                <!--
                 <div class="col-xs-12 col-sm-6">
                 
                     <h1>The Things Network</h1>
@@ -98,16 +99,16 @@
                         <div class="form-group">
                             <label for="ttn_broker_url">Broker URL</label>
                             <input type="text" class="form-control" id="ttn_broker_url" placeholder="">
-                            <!--<small id="accountIdHelp" class="form-text text-muted">The URL of the TTN broker</small>-->
+                            <!--<small id="accountIdHelp" class="form-text text-muted">The URL of the TTN broker</small>--
                         </div>
 
                         <div class="form-group" style="display:none;">
                             <label for="ttn_broker_port">Broker port</label>
                             <input type="text" class="form-control" id="ttn_broker_port" placeholder="">
-                            <!--<small id="ttnBrokerPortHelp" class="form-text text-muted">The port of the TTN broker</small>-->
+                            <!--<small id="ttnBrokerPortHelp" class="form-text text-muted">The port of the TTN broker</small>--
                         </div>
                     
-                    </div>
+                    </div>-->
 
                 </div> <!-- END ROW -->
 
@@ -121,9 +122,9 @@
                 
 
                 </form>
-
-                 
+     
             </div> <!--/.container -->
+            
         </main>
     </body>
 
@@ -167,8 +168,8 @@
                         $("#xi_id_username").val(settings.xi_id_username);
                         $("#xi_id_password").val(settings.xi_id_password);
 
-                        $("#ttn_broker_url").val(settings.ttn_broker_url);
-                        $("#ttn_broker_port").val(settings.ttn_broker_port);
+                        /*$("#ttn_broker_url").val(settings.ttn_broker_url);
+                        $("#ttn_broker_port").val(settings.ttn_broker_port);*/
 
                         $("#setting_id").val(settings.setting_id);
                     }
@@ -193,8 +194,8 @@
                     xi_id_username: $("#xi_id_username").val(),
                     xi_id_password: $("#xi_id_password").val(),
 
-                    ttn_broker_url: $("#ttn_broker_url").val(),
-                    ttn_broker_port: Number($("#ttn_broker_port").val()),
+                    /*ttn_broker_url: $("#ttn_broker_url").val(),
+                    ttn_broker_port: Number($("#ttn_broker_port").val()),*/
 
                     setting_id: Number($("#setting_id").val())
                 };

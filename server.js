@@ -332,7 +332,7 @@ app.get("/api/settings", function (req, res) {
 app.put("/api/settings", function (req, res) {
 
     var params = [];
-    params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_api_endpoint_id, req.body.xi_api_endpoint_bp, req.body.xi_account_id, req.body.xi_id_username, req.body.xi_id_password, req.body.ttn_broker_url, req.body.ttn_broker_port, req.body.setting_id);
+    params.push(req.body.xi_broker_url, req.body.xi_broker_port, req.body.xi_api_endpoint_id, req.body.xi_api_endpoint_bp, req.body.xi_account_id, req.body.xi_id_username, req.body.xi_id_password, req.body.setting_id);
 
     if (req.body.setting_id == null || req.body.setting_id == "" || req.body.setting_id == 0) {
 
