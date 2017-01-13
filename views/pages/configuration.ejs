@@ -90,25 +90,63 @@
                 </div>
 
 
-                <!--
+                
                 <div class="col-xs-12 col-sm-6">
                 
-                    <h1>The Things Network</h1>
-                        <hr>
+                    <h1>Sigfox Callback Configuration</h1>
+                    <hr>
+                
+                    <div class="form-group">
+                        <label for="">Type</label>
+                        <input type="text" class="form-control" id="" value="DATA/UPLINK" placeholder="" readonly>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="ttn_broker_url">Broker URL</label>
-                            <input type="text" class="form-control" id="ttn_broker_url" placeholder="">
-                            <!--<small id="accountIdHelp" class="form-text text-muted">The URL of the TTN broker</small>--
-                        </div>
+                    <div class="form-group">
+                        <label for="">Channel</label>
+                        <input type="text" class="form-control" id="" value="URL" placeholder="" readonly>
+                    </div>
 
-                        <div class="form-group" style="display:none;">
-                            <label for="ttn_broker_port">Broker port</label>
-                            <input type="text" class="form-control" id="ttn_broker_port" placeholder="">
-                            <!--<small id="ttnBrokerPortHelp" class="form-text text-muted">The port of the TTN broker</small>--
-                        </div>
-                    
-                    </div>-->
+                    <div class="form-group">
+                        <label for="">Custom payload config</label>
+                        <input type="text" class="form-control" id="" value="Customize as required, e.g.: field1::uint:16 field2::uint:16 field3::uint:16" placeholder="" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">URL pattern</label>
+                        <input type="text" class="form-control" id="callback-url" value="yourserver.com/sigfox/uplink" placeholder="" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Use HTTP Method</label>
+                        <input type="text" class="form-control" id="" value="POST" placeholder="" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">HEADERS</label>
+                        <input type="text" class="form-control" id="" value="XIFOXTOKEN, static token" placeholder="" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Content type</label>
+                        <input type="text" class="form-control" id="" value="application/json" placeholder="" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="">Body</label>
+                                            <pre>Customize as required, e.g.:
+
+{
+    "device" : "{device}",
+    "time": {time},
+    "field1" : {customData#field1},
+    "field 2": {customData#field2},
+    "field x": {customData#fieldx}
+}</pre>
+                    </div>
+
+
+
+                    </div>
 
                 </div> <!-- END ROW -->
 
@@ -132,6 +170,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
     <script>
+
+        document.getElementById("callback-url").value = document.location.protocol + "//" +  document.location.host + "/sigfox/uplink";
 
         $(document).ready(function() {
             //alert("here");
