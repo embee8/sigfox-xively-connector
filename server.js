@@ -9,7 +9,8 @@ var http = require("http");
 var https = require("https");
 var path = require("path");
 
-var xiapi = require("./app/xively"); // custom Xively library
+var xiapi = require("./app/xively"); // Xively API
+var analytics = require("./app/analytics"); // Analytics library
 
 var express = require("express"); // server
 var expressSession = require('express-session');
@@ -876,6 +877,9 @@ function handleUplinkMessage(msg) {
 
                 // We found matching mappings, let's go through all of them and send the data to Xively
 
+                // Real-time analytics datapoint
+                var analyticsDatapoint = {};
+
                 for (var i = 0; i < mappings.rowCount; i++) {
 
                     var mapping = mappings.rows[i];
@@ -886,6 +890,8 @@ function handleUplinkMessage(msg) {
                     var payload = msg[mapping.json_field];
 
                     if (payload != null) {
+
+                        analyticsDatapoint[mapping.json_field] = payload;
 
                         log("Mapped field was found in the payload fields. Bridging to Xively...");
 
@@ -938,7 +944,13 @@ function handleUplinkMessage(msg) {
                         log("Field was not found in the payload fields, skipping the current mapping.");
                     }
 
-                }
+                } // end for
+
+                // We looped through all fields, let's send the datapoint to Power BI
+                analyticsDatapoint["date"] = new Date().toISOString();
+
+                //console.log(analyticsDatapoint);
+                analytics.postToPowerBi(analyticsDatapoint);
 
             }
             else {
