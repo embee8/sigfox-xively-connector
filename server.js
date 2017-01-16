@@ -949,8 +949,11 @@ function handleUplinkMessage(msg) {
                 // We looped through all fields, let's send the datapoint to Power BI
                 analyticsDatapoint["date"] = new Date().toISOString();
 
-                //console.log(analyticsDatapoint);
-                analytics.postToPowerBi(analyticsDatapoint);
+                if (sourceDevice.sigfox_device_id == "1AD964") {
+                    console.log("Pushing data to Power BI:");
+                    console.log(analyticsDatapoint);
+                    analytics.postToPowerBi(analyticsDatapoint);
+                }
 
             }
             else {
