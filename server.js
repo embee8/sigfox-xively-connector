@@ -12,7 +12,11 @@ var path = require("path");
 var xiapi = require("./app/xively"); // Xively API
 var analytics = require("./app/analytics"); // Analytics library
 
+var expressJWT = require('express-jwt');
+var jwt = require('jsonwebtoken');
+
 var express = require("express"); // server
+const apiRoutes = require('./routes/api');
 var expressSession = require('express-session');
 var bodyParser = require("body-parser")
 var passport = require('passport'), LocalStrategy = require('passport-local').Strategy;
@@ -156,7 +160,7 @@ passport.use(new LocalStrategy(
                 id: 1,
                 name: "admin"
             };
-
+            //var myToken = jwt.sign({ username: "my user"}, "mysecret");
             return done(null, user);
         }
         else {
@@ -183,6 +187,8 @@ app.set('port', port);
 app.set('view engine', 'ejs');
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+
+app.use("/api/v2", apiRoutes);
 
 // Express session middleware setup
 app.use(expressSession(
@@ -910,7 +916,7 @@ function handleUplinkMessage(msg) {
                             //var timeseriesPayload = date.toISOString() + "," + category + "," + payload;
 
                             // Timestamp date format
-                            var timeseriesPayload = date.getTime() + "," + category + "," + payload + ",";
+                            var timeseriesPayload = date.toISOString() + "," + category + "," + payload + ",";
 
                             if (XIVELY_CLIENT != null) {
 
